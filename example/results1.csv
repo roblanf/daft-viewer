@@ -1,0 +1,6 @@
+Labeled_species,Total_gene_trees,Lineage1,Count1,Lineage2,Count2,What_moved,To_where,Minor_Moved,Minor_moved_count,Significant_Pairs,minor_sibling_Total_gene_trees,minor_sibling,minor_sibling_count,minor_sibling_What_moved,minor_sibling_To_where,Z_score,Z_score_sibling,inUnique,CouldbeBidirectional
+"((((((Ol,Pu) receiver,Br),Gr),Ma donor),Mz),On);",412,"(Ol,Pu);",221,Ma;,191,"(Ol,Pu);","(Ma,(Ol,Pu))",Ma;,191,"(Ol,Pu); AND Ma;",,,,,,-1.4779939172464398,,True,False
+"((((((Ol receiver,Pu),Br),Gr),Ma donor),Mz),On);",373,Ma;,164,Ol;,209,Ol;,"(Ma,Ol)",Ma;,164,Ma; AND Ol;,,,,,,-2.3300116788532397,,True,False
+"((((((Ol,Pu receiver),Br donor),Gr),Ma),Mz),On);",753,Br;,360,Pu;,393,Pu;,"(Br,Pu)",Br;,360,Br; AND Pu;,,,,,,-1.2025868531803559,,True,False
+"((((((Ol,Pu),Br receiver),Gr donor),Ma),Mz),On);",683,Br;,355,Gr;,328,Br;,"(Gr,Br)",Gr;,328,Br; AND Gr;,,,,,,-1.0331262879210643,,True,False
+"((((((Ol,Pu),Br),Gr receiver),Ma donor),Mz),On);",1450,Gr;,726,Ma;,724,Gr;,"(Ma,Gr)",Ma;,724,Gr; AND Ma;,,,,,,-0.05252257314388902,,True,False

@@ -1,0 +1,7 @@
+name: daft-viewer
+channels:
+  - conda-forge
+dependencies:
+  - python>=3.10
+  - numpy
+  - ete3

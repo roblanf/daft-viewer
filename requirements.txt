@@ -1,0 +1,5 @@
+# Python packages needed by build_atlas.py (the viewer HTML itself needs nothing).
+# conda/mamba is recommended over pip because ete3 installs more reliably there
+# (see environment.yml).
+numpy
+ete3

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DAFT attachment atlas</title>
+<link rel="stylesheet" href="atlas.css">
+</head>
+<body>
+<header id="topbar">
+  <div class="title">DAFT attachment atlas <span id="dataset-name"></span></div>
+  <nav id="tabs">
+    <button class="tab active" data-tab="explore">Explore</button>
+    <button class="tab" data-tab="events">Group into events</button>
+  </nav>
+</header>
+
+<main>
+  <!-- ============ TAB 1: explore ============ -->
+  <div id="tab-explore" class="tabpane active">
+    <section id="stage">
+      <div class="toolbar">
+        <button id="btn-all" class="btn">All connectors</button>
+        <button id="btn-reset" class="btn">Reset connectors</button>
+        <label class="ctl">Connector width
+          <select id="ex-width-by">
+            <option value="equal">equal</option>
+            <option value="Zur">Zur (uncle raw)</option>
+            <option value="Zuc">Zuc (uncle corrected)</option>
+            <option value="Zsr">Zsr (sibling raw)</option>
+            <option value="Zsc">Zsc (sibling corrected)</option>
+          </select>
+        </label>
+        <label class="ctl">Background
+          <input id="ex-bg-fade" type="range" min="0" max="1" step="0.05" value="1">
+        </label>
+        <button id="btn-svg" class="btn">Download SVG</button>
+        <button id="btn-png" class="btn">Download PNG</button>
+        <button id="btn-nuke" class="btn danger" title="Delete all saved groupings and settings">Reset all</button>
+      </div>
+      <div id="atlas"></div>
+      <div id="hint">Click any <b>branch</b> to make it focal. Click any <b>connector</b> to
+        inspect it and toggle foreground/background. <span class="note">When a width Z is chosen, a
+        connector lacking that value is drawn <b>dashed</b> at the default width.</span></div>
+    </section>
+    <aside id="sidebar">
+      <div id="legend"></div>
+      <div id="detail"></div>
+    </aside>
+  </div>
+
+  <!-- ============ TAB 2: group into events ============ -->
+  <div id="tab-events" class="tabpane">
+    <div id="events-top-row">
+      <div id="events-top-wrap">
+        <div id="events-top"></div>
+      </div>
+      <aside id="events-side">
+        <div id="coverage"></div>
+        <table id="tally"></table>
+        <div id="events-export">
+          <button id="btn-add-event" class="btn primary">+ Add event</button>
+          <div class="export-row">
+            <button id="btn-exp-json" class="btn">Save grouping</button>
+            <button id="btn-imp-json" class="btn">Load grouping</button>
+            <input id="file-json" type="file" accept="application/json" hidden>
+          </div>
+          <div class="export-row">
+            <button id="btn-exp-csv" class="btn">Table CSV</button>
+            <button id="btn-exp-svg" class="btn">Figure SVG</button>
+            <button id="btn-exp-png" class="btn">Figure PNG</button>
+          </div>
+          <div class="export-note">&ldquo;Figure&rdquo; saves one equal-sized facet each for the
+            overview, the table, and every event.</div>
+          <div class="export-note">Your grouping auto-saves in this browser.</div>
+        </div>
+      </aside>
+    </div>
+
+    <div id="events-explainer">
+      A <b>connector</b> is one significant pair DAFT reported. An <b>event</b> is your best
+      guess at one introgression episode &mdash; which may span several connectors (DAFT's
+      &ldquo;tail&rdquo;/ghosting effect). Build events below; the panel above tallies how many
+      events each connector lands in.
+    </div>
+    <div id="cards-controls">
+      <label class="ctl">Panel height
+        <input id="panel-h" type="range" min="0.6" max="2.8" step="0.1" value="1">
+      </label>
+      <label class="ctl">Element size
+        <input id="card-scale" type="range" min="-1" max="1" step="0.02" value="0">
+      </label>
+      <label class="ctl"><input id="show-raw" type="checkbox"> Attachment counts</label>
+      <label class="ctl"><input id="show-z" type="checkbox"> Connector Z-scores</label>
+      <label class="ctl">Connector width
+        <select id="width-by">
+          <option value="equal">equal</option>
+          <option value="Zur">Zur (uncle raw)</option>
+          <option value="Zuc">Zuc (uncle corrected)</option>
+          <option value="Zsr">Zsr (sibling raw)</option>
+          <option value="Zsc">Zsc (sibling corrected)</option>
+        </select>
+      </label>
+      <label class="ctl">Background
+        <input id="bg-fade" type="range" min="0" max="1" step="0.05" value="1">
+      </label>
+      <span class="note">A connector lacking the chosen width Z is drawn <b>dashed</b> at the default width.</span>
+    </div>
+    <div id="event-cards"></div>
+  </div>
+</main>
+
+<script id="atlas-data" src="atlas_data.json" type="application/json"></script>
+<script src="atlas.js"></script>
+</body>
+</html>
