@@ -15,6 +15,8 @@ DAFT detects **candidate introgression pairs** between branches of a species tre
 - **Explore** — click any branch to focus it; the connectors pointing into it light up with their attachment counts and uncle/sibling Z-scores.
 - **Group into events** — bundle the candidate connectors into your best-guess introgression *events* (one real event can produce several DAFT pairs), and export the grouping.
 
+![The Explore tab, showing the bundled cichlid example with clade Ol focal and connector 1 selected](explore.png)
+
 There are two pieces:
 
 | piece | what it does | needs |
