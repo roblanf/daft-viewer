@@ -1,3 +1,11 @@
+# What this is and isn't
+
+This is something I built over a few afternoons with Claude. I use it to explore results from DAFT, and to try and make sense of introgression events. I built it for me, and have no particular intentions to attempt to make it good software, or the kind of thing that will generalise to lots of use cases beyond what I need it for. I have tested it extensively on my own data (e.g. the data from the DAFT paper) but not on other datasets. I have no intention to modify or extend this beyond my own usage, and no intention at all to maintain it if I'm not using it. In other words - I'm putting this up in case it's helpful, but use it at your own risk, and definitely check that what the viewer puts on the screen corresponds to what DAFT is actually telling you (i.e. study the output files!).
+
+I encourage you to fork this and modify it in any way you like. Claude is very competent at building modifications. Feel free to leave things on the issues, but be aware that I almost certainly won't have time to address any of them.
+
+The rest of this readme is written primarily by Claude. I've read it, it's correct. It's not how I'd have written it!
+
 # daft-viewer
 
 An interactive, self-contained viewer for [DAFT](https://github.com/smishra677/DAFT) introgression results.
