@@ -32,6 +32,16 @@ UNK = "#1f78b4"   # NNI=1, direction not estimable
 GREY = "0.6"
 ZSIG = -1.96      # corrected-Z significance threshold
 
+# DAFT now lets users append an arbitrary "_<suffix>" to each output file name
+# (e.g. rev_n_gante.csv). The base names below are fixed; the suffix is ignored.
+# Values are the matching CLI override flags, shown in error messages.
+DAFT_FILES = {"rev_n": "rev-n", "results1": "results1", "Summary": "summary"}
+
+# Summary columns the viewer's significance/retention logic depends on. A DAFT run
+# done WITHOUT the correction step omits these, so we fail early with guidance.
+REQUIRED_SUMMARY_COLS = ["Z-value-sibling_corrected_scaled_down",
+                         "Z-value-uncle_corrected_scaled_down"]
+
 
 # ---------------------------------------------------------------------------
 def parse_args():
@@ -39,7 +49,8 @@ def parse_args():
         description="Build atlas_data.json for the interactive DAFT attachment atlas.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     p.add_argument("--daft-dir", default=os.path.join(HERE, "example"),
-                   help="folder holding rev_n.csv, results1.csv and Summary.csv")
+                   help="folder holding rev_n, results1 and Summary CSVs; a user-chosen "
+                        "'_<suffix>' before .csv is ignored (e.g. rev_n_gante.csv)")
     p.add_argument("--rev-n", default=None, help="override path to rev_n.csv")
     p.add_argument("--results1", default=None, help="override path to results1.csv")
     p.add_argument("--summary", default=None, help="override path to Summary.csv")
@@ -77,14 +88,58 @@ def load_csv(path):
     return [(i + 2, r) for i, r in enumerate(rows)]
 
 
+def find_daft_file(daft_dir, base, override):
+    """Locate a DAFT output by its fixed base name, ignoring any user-chosen '_<suffix>'.
+    Prefers an exact '<base>.csv', else a single '<base>_<suffix>.csv'. --<flag> overrides."""
+    if override:
+        return override
+    flag = DAFT_FILES[base]
+    exact = os.path.join(daft_dir, base + ".csv")
+    if os.path.exists(exact):
+        return exact
+    if not os.path.isdir(daft_dir):
+        raise SystemExit(f"DAFT output folder not found: {daft_dir}")
+    matches = sorted(os.path.join(daft_dir, fn) for fn in os.listdir(daft_dir)
+                     if fn.startswith(base + "_") and fn.endswith(".csv"))
+    if len(matches) == 1:
+        return matches[0]
+    if not matches:
+        raise SystemExit(
+            f"DAFT output not found: no '{base}.csv' or '{base}_<suffix>.csv' "
+            f"in {daft_dir}  (or pass --{flag} <path>)")
+    raise SystemExit(
+        f"Ambiguous DAFT output for '{base}' in {daft_dir}:\n"
+        + "\n".join("    " + os.path.basename(m) for m in matches)
+        + f"\n  Multiple suffixes present; pick one with --{flag} <path>.")
+
+
+def check_summary_columns(path):
+    """Fail early (with a fix) if Summary lacks the corrected-Z columns the viewer needs."""
+    with open(path) as f:
+        header = next(csv.reader(f), [])
+    missing = [c for c in REQUIRED_SUMMARY_COLS if c not in header]
+    if missing:
+        raise SystemExit(
+            f"{path} is missing the corrected-Z column(s) the viewer needs:\n"
+            + "\n".join("    " + c for c in missing)
+            + "\n\nThis looks like a DAFT run done WITHOUT the correction step. Re-run DAFT\n"
+              "with correction enabled (add `--correct 1` to your daft-test command) so\n"
+              "Summary.csv includes the *_corrected_scaled_down columns, then rebuild.")
+
+
 def main():
     args = parse_args()
-    REV_N = args.rev_n or os.path.join(args.daft_dir, "rev_n.csv")
-    RESULTS1 = args.results1 or os.path.join(args.daft_dir, "results1.csv")
-    SUMMARY = args.summary or os.path.join(args.daft_dir, "Summary.csv")
+    REV_N = find_daft_file(args.daft_dir, "rev_n", args.rev_n)
+    RESULTS1 = find_daft_file(args.daft_dir, "results1", args.results1)
+    SUMMARY = find_daft_file(args.daft_dir, "Summary", args.summary)
     for f in (REV_N, RESULTS1, SUMMARY):
         if not os.path.exists(f):
             raise SystemExit(f"DAFT output not found: {f}")
+    check_summary_columns(SUMMARY)
+    # in-viewer provenance points at the ACTUAL resolved files (suffix and all), so the
+    # "Summary.csv:3" labels in the detail panel still match what's on disk.
+    SUMMARY_NAME = os.path.basename(SUMMARY)
+    RESULTS1_NAME = os.path.basename(RESULTS1)
 
     rev_rows = load_csv(REV_N)
     res_rows = load_csv(RESULTS1)
@@ -98,7 +153,7 @@ def main():
         ln, r0 = res_rows[0]
         nwk = r0["Labeled_species"].replace(" donor", "").replace(" receiver", "")
         t = Tree(nwk, format=1)
-        sp_src = {"file": "results1.csv", "line": ln,
+        sp_src = {"file": RESULTS1_NAME, "line": ln,
                   "col": "Labeled_species (stripped ' donor'/' receiver')"}
 
     leaves = t.get_leaves()
@@ -202,7 +257,7 @@ def main():
                 "value": val, "z": round(z, 1), "sig": z <= ZSIG, "comp": comp or None,
                 "z_raw": (round(zr, 1) if zr is not None else None),
                 "z_raw_sig": (zr is not None and zr <= ZSIG),
-                "src": f"Summary.csv:{sl}", "col": f"Test_count - {count_col}",
+                "src": f"{SUMMARY_NAME}:{sl}", "col": f"Test_count - {count_col}",
                 "note": (f"{int(round(float(sr['Test_count'])))} - {which}({comp}) "
                          f"{int(round(float(sr[count_col])))}; corrected Z={z:.2f}"
                          f"{' (sig)' if z <= ZSIG else ' (n.s.)'}")}
@@ -233,7 +288,7 @@ def main():
         det_z = []
         for sl, sr in sum_pair.get(pair, []):
             det_z.append({
-                "src": f"Summary.csv:{sl}",
+                "src": f"{SUMMARY_NAME}:{sl}",
                 "focal": (sr.get("Focal_lineage") or "").strip().rstrip(";"),
                 "test": (sr.get("Test_lineage") or "").strip().rstrip(";"),
                 "flag": sr.get("flag", ""),

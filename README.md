@@ -74,6 +74,10 @@ The viewer reads **three** files produced by a DAFT run:
 | `results1.csv` | DAFT Direction / djiNNI output (donor / recipient) |
 | `Summary.csv` | detection Z-scores (uncle & sibling, raw + corrected) |
 
+DAFT can append a run label to its output filenames (e.g. `Summary_gante.csv`). The builder
+ignores any such `_<suffix>`, so you can point it straight at a labelled run — it just needs
+exactly one match per file (otherwise use `--rev-n / --results1 / --summary`).
+
 Put them in one folder and point the builder at it:
 
 ```bash
@@ -82,7 +86,7 @@ python build_atlas.py --daft-dir /path/to/your/DAFT/outputs --dataset myrun
 
 …or point at each file individually with `--rev-n / --results1 / --summary`. It writes a self-contained `attachment_atlas.html` (plus an intermediate `atlas_data.json`). See `python build_atlas.py --help` for all options.
 
-> A connector is only drawn when **both** the raw and corrected Z are significant (≤ −1.96) for at least one of the avuncular / sibling tests, following the DAFT recommendation.
+> A connector is only drawn when **both** the raw and corrected Z are significant (≤ −1.96) for at least one of the avuncular / sibling tests, following the DAFT recommendation. This means your DAFT run must have correction enabled (`--correct 1`) so `Summary.csv` carries the `*_corrected_scaled_down` Z columns — the builder stops with an explanatory error if they're missing.
 
 ---
 
